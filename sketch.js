@@ -116,7 +116,6 @@ function setupCameraToggleIcon() {
   iconDiv.addEventListener('click', () => {
     cameraReturnMode = !cameraReturnMode;
     updateCameraToggleIcon();
-    // Si quieres cancelar el retorno al cambiar de modo:
     returning = false;
   });
 }
@@ -128,6 +127,67 @@ function updateCameraToggleIcon() {
   iconDiv.innerHTML = cameraReturnMode
     ? `<svg viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="20" rx="8" ry="7" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 20 v-5a6 6 0 1 1 12 0v5" stroke="#fff" stroke-width="2" fill="none"/><rect x="13" y="22" width="6" height="4" rx="2" fill="#fff"/></svg>`
     : `<svg viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="20" rx="8" ry="7" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 20 v-5a6 6 0 1 1 12 0" stroke="#fff" stroke-width="2" fill="none"/><rect x="13" y="22" width="6" height="4" rx="2" fill="#fff"/></svg>`;
+}
+
+function draw() {
+  // Skybox
+   noStroke();
+  push();
+ 
+  if (skyTexture) {
+    texture(skyTexture);
+    push();
+    scale(-1, 1, 1);
+    sphere(3000, 60, 40);
+    pop();
+  } else {
+    background(100, 150, 255);
+  }
+  pop();
+
+  // SUELO
+  push();
+  translate(0, 100, 0); // Baja el suelo
+  rotateX(HALF_PI);     // Acuesta el plano
+  texture(paredTexture);
+  plane(200, 200);
+  pop();
+
+  // PARED IZQUIERDA
+  push();
+  translate(-100, 0, 0); // Mueve a la izquierda
+  rotateY(HALF_PI);       // Gira para que sea pared
+  texture(paredTexture);
+  plane(200, 200);
+  pop();
+
+  // PARED DERECHA
+  push();
+  translate(0, 0, -100); // Mueve hacia atrás
+  // No necesita rotación, ya está de frente
+  texture(paredTexture);
+  plane(200, 200);
+  pop();
+
+  // Si está volviendo, interpolar con ease
+  if (returning) {
+    returnT += 0.03;
+    let e = easeOutQuad(constrain(returnT, 0, 1));
+    theta = lerp(returnStart.theta, initialCamera.theta, e);
+    phi = lerp(returnStart.phi, initialCamera.phi, e);
+    radius = lerp(returnStart.radius, initialCamera.radius, e);
+    panX = lerp(returnStart.panX, initialCamera.panX, e);
+    panY = lerp(returnStart.panY, initialCamera.panY, e);
+    if (returnT >= 1) {
+      returning = false;
+      returnT = 0;
+    }
+  }
+
+  updateCamera();
+  document.oncontextmenu = function () {
+    return false;
+  };
 }
 
 // Mouse controles
@@ -253,27 +313,12 @@ function keyPressed() {
   if (key === 'c' || key === 'C') {
     cameraReturnMode = !cameraReturnMode;
     returning = false;
+    updateCameraToggleIcon(); // <- ¡Esto es lo importante!
   }
 }
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
-}
-
-// Detecta si el mouse está sobre el icono
-function mouseOnIcon() {
-  let mx = mouseX;
-  let my = mouseY;
-  let ix = iconX;
-  let iy = iconY;
-  return (mx > ix && mx < ix + iconSize && my > iy && my < iy + iconSize);
-}
-
-// Detecta si un touch está sobre el icono
-function touchOnIcon(tx, ty) {
-  let ix = iconX;
-  let iy = iconY;
-  return (tx > ix && tx < ix + iconSize && ty > iy && ty < iy + iconSize);
 }
 
 // Debe estar definida así:
