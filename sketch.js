@@ -31,7 +31,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight, WEBGL);
+  createCanvas(600, 800, WEBGL);
   cam = createCamera();
   center = [0, 0, 0];
 
