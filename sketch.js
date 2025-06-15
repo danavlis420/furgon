@@ -51,6 +51,7 @@ function setup() {
   // Configura el ícono HTML
   setupCameraToggleIcon();
   updateCameraToggleIcon();
+  updateCameraToggleIconSize(); // <-- agrega esto
 }
 
 function draw() {
@@ -342,6 +343,7 @@ function keyPressed() {
 function windowResized() {
   calculateCanvasSize();
   resizeCanvas(canvasW, canvasH);
+  updateCameraToggleIconSize(); // <-- agrega esto
 }
 
 function calculateCanvasSize() {
@@ -356,6 +358,27 @@ function calculateCanvasSize() {
     canvasW = winW;
     canvasH = int(winW / aspect);
   }
+  updateCameraToggleIconSize();
+}
+
+// Esta función ajusta el tamaño y posición del ícono según el espacio libre
+function updateCameraToggleIconSize() {
+  const iconDiv = document.getElementById('camera-toggle');
+  // Calcula espacio libre a la izquierda y arriba
+  let leftSpace = (windowWidth - canvasW) / 2;
+  let topSpace = (windowHeight - canvasH) / 2;
+  // Elige el tamaño máximo posible (mínimo entre ambos espacios y un máximo razonable)
+  let maxSize = Math.max(40, Math.min(leftSpace, topSpace, 120));
+  iconDiv.style.width = maxSize + 'px';
+  iconDiv.style.height = maxSize + 'px';
+  iconDiv.style.left = (leftSpace > 0 ? (leftSpace - maxSize) / 2 : 8) + 'px';
+  iconDiv.style.top = (topSpace > 0 ? (topSpace - maxSize) / 2 : 8) + 'px';
+  // Ajusta el SVG también
+  let svgSize = Math.max(24, maxSize * 0.6);
+  iconDiv.querySelectorAll('svg').forEach(svg => {
+    svg.style.width = svgSize + 'px';
+    svg.style.height = svgSize + 'px';
+  });
 }
 
 // Debe estar definida así:
