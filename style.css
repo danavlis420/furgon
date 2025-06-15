@@ -37,3 +37,13 @@ canvas {
   height: 24px;
   display: block;
 }
+@media (max-aspect-ratio: 3/4) {
+  #camera-toggle {
+    width: 64px;
+    height: 64px;
+  }
+  #camera-toggle svg {
+    width: 40px;
+    height: 40px;
+  }
+}
