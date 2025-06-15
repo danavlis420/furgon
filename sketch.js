@@ -6,7 +6,7 @@ let dragging = false;
 let panning = false;
 let lastDist = null;
 let lastTouchCenter = null;
-let skyTexture;
+let skyTexture, paredTexture;
 
 // Posición inicial de la cámara
 const initialCamera = {
@@ -21,6 +21,9 @@ const initialCamera = {
 let returning = false;
 let returnStart = {};
 let returnT = 0;
+
+// Modo de cámara: true = vuelve, false = libre
+let cameraReturnMode = true;
 
 function preload() {
   skyTexture = loadImage('img/sky.jpg');
@@ -39,14 +42,18 @@ function setup() {
   panX = initialCamera.panX;
   panY = initialCamera.panY;
 
-  updateCamera();
+  updateCamera(); // <-- Esta llamada debe funcionar
+
+  // Configura el ícono HTML
+  setupCameraToggleIcon();
+  updateCameraToggleIcon();
 }
 
 function draw() {
   // Skybox
-  noStroke();
+   noStroke();
   push();
-  
+ 
   if (skyTexture) {
     texture(skyTexture);
     push();
@@ -96,25 +103,36 @@ function draw() {
       returnT = 0;
     }
   }
+
+  updateCamera();
   document.oncontextmenu = function () {
     return false;
   };
-  updateCamera();
 }
 
-function updateCamera() {
-  let x = center[0] + radius * sin(phi) * cos(theta) + panX;
-  let y = center[1] + radius * cos(phi) + panY;
-  let z = center[2] + radius * sin(phi) * sin(theta);
-  cam.setPosition(x, y, z);
-  cam.lookAt(center[0] + panX, center[1] + panY, center[2]);
-  cam.upX = 0;
-  cam.upY = 1;
-  cam.upZ = 0;
+// Configura el ícono HTML
+function setupCameraToggleIcon() {
+  const iconDiv = document.getElementById('camera-toggle');
+  iconDiv.addEventListener('click', () => {
+    cameraReturnMode = !cameraReturnMode;
+    updateCameraToggleIcon();
+    // Si quieres cancelar el retorno al cambiar de modo:
+    returning = false;
+  });
+}
+
+function updateCameraToggleIcon() {
+  const iconDiv = document.getElementById('camera-toggle');
+  iconDiv.classList.toggle('locked', cameraReturnMode);
+  iconDiv.classList.toggle('unlocked', !cameraReturnMode);
+  iconDiv.innerHTML = cameraReturnMode
+    ? `<svg viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="20" rx="8" ry="7" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 20 v-5a6 6 0 1 1 12 0v5" stroke="#fff" stroke-width="2" fill="none"/><rect x="13" y="22" width="6" height="4" rx="2" fill="#fff"/></svg>`
+    : `<svg viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="20" rx="8" ry="7" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 20 v-5a6 6 0 1 1 12 0" stroke="#fff" stroke-width="2" fill="none"/><rect x="13" y="22" width="6" height="4" rx="2" fill="#fff"/></svg>`;
 }
 
 // Mouse controles
 function mousePressed() {
+  // Ya NO debe haber chequeo de mouseOnIcon ni nada similar
   if (mouseButton === LEFT) {
     dragging = true;
   } else if (mouseButton === RIGHT) {
@@ -145,7 +163,7 @@ function mouseDragged() {
 function mouseReleased() {
   dragging = false;
   panning = false;
-  startReturn();
+  if (cameraReturnMode) startReturn();
 }
 
 function mouseWheel(event) {
@@ -209,7 +227,7 @@ function touchEnded() {
   }
   if (touches.length === 0) {
     dragging = false;
-    startReturn();
+    if (cameraReturnMode) startReturn();
   }
 }
 
@@ -231,6 +249,41 @@ function easeOutQuad(x) {
   return 1 - (1 - x) * (1 - x);
 }
 
+function keyPressed() {
+  if (key === 'c' || key === 'C') {
+    cameraReturnMode = !cameraReturnMode;
+    returning = false;
+  }
+}
+
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+}
+
+// Detecta si el mouse está sobre el icono
+function mouseOnIcon() {
+  let mx = mouseX;
+  let my = mouseY;
+  let ix = iconX;
+  let iy = iconY;
+  return (mx > ix && mx < ix + iconSize && my > iy && my < iy + iconSize);
+}
+
+// Detecta si un touch está sobre el icono
+function touchOnIcon(tx, ty) {
+  let ix = iconX;
+  let iy = iconY;
+  return (tx > ix && tx < ix + iconSize && ty > iy && ty < iy + iconSize);
+}
+
+// Debe estar definida así:
+function updateCamera() {
+  let x = center[0] + radius * sin(phi) * cos(theta) + panX;
+  let y = center[1] + radius * cos(phi) + panY;
+  let z = center[2] + radius * sin(phi) * sin(theta);
+  cam.setPosition(x, y, z);
+  cam.lookAt(center[0] + panX, center[1] + panY, center[2]);
+  cam.upX = 0;
+  cam.upY = 1;
+  cam.upZ = 0;
 }
