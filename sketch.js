@@ -25,13 +25,17 @@ let returnT = 0;
 // Modo de cámara: true = vuelve, false = libre
 let cameraReturnMode = true;
 
+let aspect = 3 / 4; // Aspecto 3:4 (ancho:alto)
+let canvasW, canvasH;
+
 function preload() {
   skyTexture = loadImage('img/sky.jpg');
   paredTexture = loadImage('img/textura.jpg');
 }
 
 function setup() {
-  createCanvas(600, 800, WEBGL);
+  calculateCanvasSize();
+  createCanvas(canvasW, canvasH, WEBGL);
   cam = createCamera();
   center = [0, 0, 0];
 
@@ -50,6 +54,15 @@ function setup() {
 }
 
 function draw() {
+  // Fondo negro fuera del canvas (barras)
+  clear();
+  background(0);
+
+  // Centra el canvas en la ventana
+  let offsetX = (windowWidth - width) / 2;
+  let offsetY = (windowHeight - height) / 2;
+  translate(-width / 2 + canvasW / 2, -height / 2 + canvasH / 2, 0);
+
   // Skybox
    noStroke();
   push();
@@ -130,6 +143,15 @@ function updateCameraToggleIcon() {
 }
 
 function draw() {
+  // Fondo negro fuera del canvas (barras)
+  clear();
+  background(0);
+
+  // Centra el canvas en la ventana
+  let offsetX = (windowWidth - width) / 2;
+  let offsetY = (windowHeight - height) / 2;
+  translate(-width / 2 + canvasW / 2, -height / 2 + canvasH / 2, 0);
+
   // Skybox
    noStroke();
   push();
@@ -318,7 +340,22 @@ function keyPressed() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  calculateCanvasSize();
+  resizeCanvas(canvasW, canvasH);
+}
+
+function calculateCanvasSize() {
+  let winW = windowWidth;
+  let winH = windowHeight;
+  if (winW / winH > aspect) {
+    // Ventana más ancha que el aspecto: ajusta a alto
+    canvasH = winH;
+    canvasW = int(winH * aspect);
+  } else {
+    // Ventana más alta que el aspecto: ajusta a ancho
+    canvasW = winW;
+    canvasH = int(winW / aspect);
+  }
 }
 
 // Debe estar definida así:
