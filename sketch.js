@@ -127,13 +127,15 @@ function draw() {
 // Configura el ícono HTML
 function setupCameraToggleIcon() {
   const iconDiv = document.getElementById('camera-toggle');
+  // Click para escritorio
   iconDiv.addEventListener('click', () => {
     cameraReturnMode = !cameraReturnMode;
     updateCameraToggleIcon();
     returning = false;
   });
+  // Touch para móviles
   iconDiv.addEventListener('touchstart', (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Evita doble disparo/click fantasma
     cameraReturnMode = !cameraReturnMode;
     updateCameraToggleIcon();
     returning = false;
@@ -370,15 +372,15 @@ function calculateCanvasSize() {
 
 function updateCameraToggleIconSize() {
   const iconDiv = document.getElementById('camera-toggle');
-  // Calcula espacio libre a la izquierda y arriba
-  let leftSpace = (windowWidth - canvasW) / 2;
+  // Calcula espacio libre arriba del canvas
   let topSpace = (windowHeight - canvasH) / 2;
-  // Elige el tamaño máximo posible (mínimo entre ambos espacios y un máximo razonable)
-  let maxSize = Math.max(40, Math.min(leftSpace, topSpace, 120));
+  // Elige el tamaño máximo posible (máximo 120px, mínimo 40px)
+  let maxSize = Math.max(40, Math.min(topSpace - 8, 120));
+  // Si no hay espacio suficiente, lo deja pequeño y pegado al borde
   iconDiv.style.width = maxSize + 'px';
   iconDiv.style.height = maxSize + 'px';
-  iconDiv.style.left = (leftSpace > 0 ? (leftSpace - maxSize) / 2 : 8) + 'px';
-  iconDiv.style.top = (topSpace > 0 ? (topSpace - maxSize) / 2 : 8) + 'px';
+  iconDiv.style.left = '8px';
+  iconDiv.style.top = (topSpace > maxSize ? (topSpace - maxSize) / 2 : 8) + 'px';
   // Ajusta el SVG también
   let svgSize = Math.max(24, maxSize * 0.6);
   iconDiv.querySelectorAll('svg').forEach(svg => {
