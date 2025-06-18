@@ -12,10 +12,10 @@ canvas {
 }
 #camera-toggle {
   position: fixed;
-  top: 24px;
-  left: 24px;
-  width: 40px;
-  height: 40px;
+  /* top: 24px; */
+  /* left: 24px; */
+  /* width: 40px; */
+  /* height: 40px; */
   background: rgba(255,255,255,0.9);
   border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.15);
@@ -33,7 +33,5 @@ canvas {
   background: rgba(60,200,60,0.95);
 }
 #camera-toggle svg {
-  width: 24px;
-  height: 24px;
   display: block;
 }

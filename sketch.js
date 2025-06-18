@@ -51,7 +51,7 @@ function setup() {
   // Configura el ícono HTML
   setupCameraToggleIcon();
   updateCameraToggleIcon();
-  updateCameraToggleIconSize(); // <-- agrega esto
+  updateCameraToggleIconSize();
 }
 
 function draw() {
@@ -132,6 +132,12 @@ function setupCameraToggleIcon() {
     updateCameraToggleIcon();
     returning = false;
   });
+  iconDiv.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    cameraReturnMode = !cameraReturnMode;
+    updateCameraToggleIcon();
+    returning = false;
+  }, {passive: false});
 }
 
 function updateCameraToggleIcon() {
@@ -141,6 +147,16 @@ function updateCameraToggleIcon() {
   iconDiv.innerHTML = cameraReturnMode
     ? `<svg viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="20" rx="8" ry="7" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 20 v-5a6 6 0 1 1 12 0v5" stroke="#fff" stroke-width="2" fill="none"/><rect x="13" y="22" width="6" height="4" rx="2" fill="#fff"/></svg>`
     : `<svg viewBox="0 0 32 32" fill="none"><ellipse cx="16" cy="20" rx="8" ry="7" stroke="#fff" stroke-width="2" fill="none"/><path d="M10 20 v-5a6 6 0 1 1 12 0" stroke="#fff" stroke-width="2" fill="none"/><rect x="13" y="22" width="6" height="4" rx="2" fill="#fff"/></svg>`;
+  updateCameraToggleIconSize(); // <-- ¡Asegúrate de llamar esto aquí!
+}
+
+// Asegúrate de actualizar el ícono también al cambiar de modo con la tecla C
+function keyPressed() {
+  if (key === 'c' || key === 'C') {
+    cameraReturnMode = !cameraReturnMode;
+    returning = false;
+    updateCameraToggleIcon();
+  }
 }
 
 function draw() {
@@ -332,18 +348,10 @@ function easeOutQuad(x) {
   return 1 - (1 - x) * (1 - x);
 }
 
-function keyPressed() {
-  if (key === 'c' || key === 'C') {
-    cameraReturnMode = !cameraReturnMode;
-    returning = false;
-    updateCameraToggleIcon(); // <- ¡Esto es lo importante!
-  }
-}
-
 function windowResized() {
   calculateCanvasSize();
   resizeCanvas(canvasW, canvasH);
-  updateCameraToggleIconSize(); // <-- agrega esto
+  updateCameraToggleIconSize();
 }
 
 function calculateCanvasSize() {
@@ -358,10 +366,8 @@ function calculateCanvasSize() {
     canvasW = winW;
     canvasH = int(winW / aspect);
   }
-  updateCameraToggleIconSize();
 }
 
-// Esta función ajusta el tamaño y posición del ícono según el espacio libre
 function updateCameraToggleIconSize() {
   const iconDiv = document.getElementById('camera-toggle');
   // Calcula espacio libre a la izquierda y arriba
